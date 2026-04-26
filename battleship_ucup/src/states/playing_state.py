@@ -16,7 +16,6 @@ class PlayingState(BaseState):
         self.current_player = "player"
         self.message = "Ваша черга! Клікніть по полю суперника"
         self.game_over = False
-        self.winner = None
 
     def handle_event(self, event):
         if self.game_over:
@@ -65,48 +64,39 @@ class PlayingState(BaseState):
         self.check_game_over()
 
     def check_game_over(self):
-        player_lost = all(ship.is_sunk() for ship in self.player_board.ships)
-        enemy_lost = all(ship.is_sunk() for ship in self.enemy_board.ships)
-
-        if player_lost:
+        if all(ship.is_sunk() for ship in self.player_board.ships):
             self.game_over = True
-            self.winner = "AI"
-            self.message = "💀 Ви програли... AI переміг"
-        elif enemy_lost:
+            self.message = "💀 Ви програли..."
+        elif all(ship.is_sunk() for ship in self.enemy_board.ships):
             self.game_over = True
-            self.winner = "player"
-            self.message = "ВИ ПЕРЕМОГЛИ!"
+            self.message = "🎉 ВИ ПЕРЕМОГЛИ! 🎉"
 
     def draw(self, screen):
         screen.fill(COLOR_BG)
 
-        # Захист від None шрифтів
-        big_font = FONT_BIG if FONT_BIG is not None else pygame.font.SysFont("Arial", 48, bold=True)
+        title_font = FONT_BIG if FONT_BIG is not None else pygame.font.SysFont("Arial", 48, bold=True)
         medium_font = FONT_MEDIUM if FONT_MEDIUM is not None else pygame.font.SysFont("Arial", 32)
-        small_font = FONT_SMALL if FONT_SMALL is not None else pygame.font.SysFont("Arial", 24)
 
-        title = big_font.render("МОРСЬКИЙ БІЙ", True, (255, 215, 0))
+        title = title_font.render("МОРСЬКИЙ БІЙ", True, (255, 215, 0))
         screen.blit(title, (SCREEN_WIDTH//2 - title.get_width()//2, 20))
 
-        # Поле гравця
+        # Ваше поле
         self.draw_board(screen, self.player_board, BOARD_OFFSET_X, BOARD_OFFSET_Y, "ВАШЕ ПОЛЕ", hide_ships=False)
 
         # Поле суперника
         enemy_x = BOARD_OFFSET_X + BOARD_SIZE * CELL_SIZE + 150
         self.draw_board(screen, self.enemy_board, enemy_x, BOARD_OFFSET_Y, "ПОЛЕ СУПЕРНИКА", hide_ships=True)
 
-        # Повідомлення
-        msg_color = (255, 50, 50) if self.game_over and self.winner == "AI" else (50, 255, 50)
-        msg = medium_font.render(self.message, True, msg_color)
+        msg = medium_font.render(self.message, True, (255, 255, 100))
         screen.blit(msg, (SCREEN_WIDTH//2 - msg.get_width()//2, 620))
 
         if self.game_over:
-            restart_text = medium_font.render("Натисніть R для нової гри", True, (255, 255, 100))
-            screen.blit(restart_text, (SCREEN_WIDTH//2 - restart_text.get_width()//2, 670))
+            restart = medium_font.render("Натисніть R для нової гри", True, (255, 255, 100))
+            screen.blit(restart, (SCREEN_WIDTH//2 - restart.get_width()//2, 670))
 
     def draw_board(self, screen, board, offset_x, offset_y, title_text, hide_ships=True):
-        title_surf = FONT_MEDIUM.render(title_text, True, (200, 220, 255)) if FONT_MEDIUM is not None else pygame.font.SysFont("Arial", 28).render(title_text, True, (200, 220, 255))
-        screen.blit(title_surf, (offset_x + 40, offset_y - 40))
+        t = medium_font.render(title_text, True, (200, 220, 255))
+        screen.blit(t, (offset_x + 50, offset_y - 40))
 
         pygame.draw.rect(screen, COLOR_WATER, (offset_x, offset_y, BOARD_SIZE*CELL_SIZE, BOARD_SIZE*CELL_SIZE))
 

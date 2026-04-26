@@ -1,5 +1,3 @@
-# src/states/base_state.py
-import pygame
 from abc import ABC, abstractmethod
 
 class BaseState(ABC):
