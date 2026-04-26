@@ -7,7 +7,9 @@ from config import *
 from constants import SHIP_SET
 
 class PlacementState(BaseState):
-    def __init__(self, game):
+    def __init__(self, game, is_host=True):
+        super().__init__(game)
+        self.is_host = is_host
         super().__init__(game)
         self.player_board = Board()
         self.current_ship_index = 0
